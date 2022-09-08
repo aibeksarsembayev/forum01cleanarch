@@ -1,0 +1,23 @@
+{{template "base" .}} 
+{{define "title"}}Post #{{.post.PostID}}{{end}} 
+{{define "main"}} {{with .post}}
+  <div>
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ124yi5yS06QmpyvRNRu4I3ql1x124DXfJ7A&usqp=CAU"
+      class="img-fluid rounded-start"
+      alt="..."
+    />
+    <div >
+      <strong>{{.Title}}</strong>
+      <span>#{{.PostID}}</span>
+    </div>
+    <pre><code>{{.Content}}</code></pre>
+    <div class="metadata">
+      <div>Category: {{.CategoryName}}</div>
+      <div>Author: {{.Username}}</div>
+      <p class="card-text">Published: {{.CreatedAt}}</p>    
+     
+    </div>
+  </div>
+  {{end}}
+  {{end}}

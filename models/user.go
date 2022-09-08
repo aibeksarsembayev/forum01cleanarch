@@ -15,17 +15,20 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// UserRequestDTO ...
-type UserRequestDTO struct {
-	UserID    int       `json:"user_id"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+// UserRegisterRequestDTO ...
+type UserRegisterRequestDTO struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
-// UserUsecase represents user's usecase
+// UserLoginRequestDTO ...
+type UserLoginRequestDTO struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// UserUsecase represents user's usecase ...
 type UserUsecase interface {
 	Create(ctx context.Context, user *User) (int, error)
 	Update(ctx context.Context, user *User) error
@@ -34,7 +37,7 @@ type UserUsecase interface {
 	Delete(ctx context.Context, id int) error
 }
 
-// UserRepository represents user's repository contract
+// UserRepository represents user's repository contract ...
 type UserRepository interface {
 	Create(ctx context.Context, user *User) (int, error)
 	Update(ctx context.Context, user *User) error

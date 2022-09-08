@@ -33,33 +33,55 @@ func main() {
 
 	// repositories ...
 	UserRepository := repository.NewSqliteUserRepository(db)
+	PostRepository := repository.NewSqlitePostRepository(db)
+	CategoryRepository := repository.NewSqliteCategoryRepository(db)
 
 	// contextTimeout setup
 	timeoutContext := time.Duration(config.Context.Timeout) * time.Second
 
 	// usecases ...
 	userUsecase := usecase.NewUserUsecase(UserRepository, timeoutContext)
+	postUsecase := usecase.NewPostUsecase(PostRepository, timeoutContext)
+	categoryUsecase := usecase.NewCategoryUsecase(CategoryRepository, timeoutContext)
 
-	// delivery ...
+	// cache templates ...
+	templateCache, err := httpdelivery.NewTemplateCache("./ui/html/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// initiate loggers ...
+	infoLog, errorLog := httpdelivery.NewLogger()
+
+	// delivery handler ...
 	handler := &httpdelivery.Handler{
-		UserUsecase: userUsecase,
+		UserUsecase:     userUsecase,
+		PostUsecase:     postUsecase,
+		CategoryUsecase: categoryUsecase,
+		TemplateCache:   templateCache,
+		InfoLog:         infoLog,
+		ErrorLog:        errorLog,
 	}
 
 	// router init ...
 	router := httpdelivery.NewHandler(handler)
 
+	// Initialize middleware ...
+	// middl := middleware.InitMiddleware()
+
 	// server configs ...
 	srv := &http.Server{
-		ReadTimeout:       1 * time.Second, // the maximum duration for reading the entire request, including the body
-		WriteTimeout:      1 * time.Second, // the maximum duration before timing out writes of the response
+		ReadTimeout:       1 * time.Second,  // the maximum duration for reading the entire request, including the body
+		WriteTimeout:      1 * time.Second,  // the maximum duration before timing out writes of the response
 		IdleTimeout:       30 * time.Second, // the maximum amount of time to wait for the next request when keep-alive is enabled
-		ReadHeaderTimeout: 2 * time.Second, // the amount of time allowed to read request headers
+		ReadHeaderTimeout: 2 * time.Second,  // the amount of time allowed to read request headers
 		Addr:              config.Server.Address,
+		ErrorLog:          errorLog,
 		Handler:           router,
 	}
 
-	log.Printf("Starting server on %s", config.Server.Address)
+	infoLog.Printf("Starting server on %s", config.Server.Address)
 
 	err = srv.ListenAndServe()
-	log.Fatal(err)
+	errorLog.Fatal(err)
 }

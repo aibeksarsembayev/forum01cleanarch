@@ -28,11 +28,19 @@ func (u *userUsecase) Create(ctx context.Context, user *models.User) (id int, er
 }
 
 func (u *userUsecase) Update(ctx context.Context, user *models.User) error {
+	err := u.UserRepository.Update(ctx, user)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (u *userUsecase) GetByID(ctx context.Context, id int) (*models.User, error) {
-	return nil, nil
+	user, err := u.UserRepository.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (u *userUsecase) GetByEmail(ctx context.Context, email string) (*models.User, error) {
@@ -44,5 +52,9 @@ func (u *userUsecase) GetByEmail(ctx context.Context, email string) (*models.Use
 }
 
 func (u *userUsecase) Delete(ctx context.Context, id int) error {
+	err := u.UserRepository.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }

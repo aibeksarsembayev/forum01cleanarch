@@ -1,0 +1,20 @@
+{{template "base" .}}
+
+{{define "title"}}Sign In{{end}}
+
+{{define "main"}}
+    <h2>Login</h2>
+
+    <!-- <form action="/signin" method="Post"> -->
+
+        <label>Email <input type="email" name="email" id="emailAddress" placeholder="Enter your email" required></label>
+        <label>Password<input type="password" name="password" id="userPassword" placeholder="Enter your password" required></label>
+       
+        <!-- <input type="submit" value="Login"> -->
+
+        <button onclick="signinJSON()">Login</button>
+
+    <!-- </form> -->
+
+{{end}}
+<script src="/static/js/script.js"></script>

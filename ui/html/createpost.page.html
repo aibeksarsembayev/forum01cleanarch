@@ -1,0 +1,31 @@
+{{template "base" .}} {{define "title"}}Create Post{{end}} {{define "main"}}
+<h2>Create Post</h2>
+
+<label
+  >Title
+  <input
+    type="text"
+    name="title"
+    id="postTitle"
+    placeholder="Enter Post Title"
+    required
+/></label>
+<label
+  >Content<input
+    type="text"
+    name="content"
+    id="postContent"
+    placeholder="Enter Post Content"
+    required
+/></label>
+
+<select name="category" id="category">
+  {{range .categories}}
+  <option value="{{.CategoryName}}">{{.CategoryName}}</option>
+  {{end}}
+</select>
+
+<button onclick="createPostJSON()">Create Post</button>
+
+{{end}}
+<script src="/static/js/post.js"></script>

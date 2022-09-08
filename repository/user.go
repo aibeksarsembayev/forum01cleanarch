@@ -42,7 +42,24 @@ func (u *sqliteUserRepository) Update(ctx context.Context, user *models.User) er
 
 // GetByID user ...
 func (u *sqliteUserRepository) GetByID(ctx context.Context, id int) (*models.User, error) {
-	return nil, nil
+	stmt, _ := u.Conn.Prepare("SELECT * FROM users WHERE user_id = ?")
+
+	row := stmt.QueryRow(id)
+
+	user := &models.User{}
+
+	dateFormat := "2016-10-06 01:50:00 -0700 MST"
+	var timeCreated, timeUpdated string
+
+	err := row.Scan(&user.UserID, &user.Username, &user.Password, &user.Email, &timeCreated, &timeUpdated)
+	user.CreatedAt, _ = time.Parse(dateFormat, timeCreated)
+	user.UpdatedAt, _ = time.Parse(dateFormat, timeUpdated)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // GetByEmail user ...

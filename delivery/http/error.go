@@ -1,6 +1,7 @@
 package httpdelivery
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -14,7 +15,6 @@ type ResponseError struct {
 
 func errorHandler(status int, err error) {
 	log.Println(status, err)
-	
 
 }
 
@@ -33,4 +33,12 @@ func getStatusCode(err error) int {
 	default:
 		return http.StatusInternalServerError
 	}
+}
+
+// JSON returns given structs as jSON into the responce body ...
+func JSON(w http.ResponseWriter, code int, obj interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(obj)
 }
