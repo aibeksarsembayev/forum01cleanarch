@@ -13,4 +13,6 @@ var (
 	ErrConflict = errors.New("Your Item already exist")
 	// ErrBadParamInput will throw if the given request-body or params is not valid
 	ErrBadParamInput = errors.New("Given Param is not valid")
+	// ErrNoRecord will throw if no record was found in repo
+	ErrNoRecord = errors.New("models: no suitable record was found")
 )

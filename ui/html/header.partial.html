@@ -1,3 +1,18 @@
 {{define "header"}}
-<p>here will be header with navbar ... </p>
+<header class="container">
+  <h1><a href="/">Forum</a></h1>
+</header>
+<div class="container">
+  <nav class="navbar navbar-light" style="background-color: #e3f2fd">
+    <a href="/">Home Page</a>
+    {{if .session}}
+    <a href="/post/create">Create Post</a>
+    <a href="/profile?user={{.User.Username}}">{{.User.Username}}</a>
+    <a href="/signout">Sign Out</a>
+    {{else}}
+    <a href="/signup">Sign Up</a>
+    <a href="/signin">Sign In</a>
+    {{end}}
+  </nav>
+</div>
 {{end}}

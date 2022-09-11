@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"git.01.alem.school/quazar/forum-authentication/models"
@@ -30,7 +29,7 @@ func (p *sqlitePostRepository) Create(ctx context.Context, post *models.Post) (i
 
 	post_id, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return 0, err //nil?
 	}
 
 	return int(post_id), nil
@@ -64,12 +63,24 @@ func (p *sqlitePostRepository) GetAll(ctx context.Context) (*[]models.PostReques
 			return nil, err
 		}
 
+		// get username by ID
 		u := &sqliteUserRepository{Conn: p.Conn}
 		user, err := u.GetByID(ctx, post.UserID)
 		if err != nil {
 			return nil, err
 		}
 		post.Username = user.Username
+
+		// get post votes by postid and userid
+		pv := &sqlitePostVoteRepository{Conn: p.Conn}
+		post.VoteLike, err = pv.GetCountByPost(ctx, post.PostID, true)
+		if err != nil {
+			return nil, err
+		}
+		post.VoteDislike, err = pv.GetCountByPost(ctx, post.PostID, false)
+		if err != nil {
+			return nil, err
+		}
 
 		posts = append(posts, *post)
 	}
@@ -106,7 +117,9 @@ func (p *sqlitePostRepository) GetByID(ctx context.Context, id int) (*models.Pos
 	}
 	post.Username = user.Username
 
-	fmt.Println(post)
+	if err = row.Err(); err != nil {
+		return nil, err
+	}
 
 	return post, nil
 }

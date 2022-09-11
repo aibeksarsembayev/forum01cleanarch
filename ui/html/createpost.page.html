@@ -19,13 +19,14 @@
     required
 /></label>
 
-<select name="category" id="category">
+<select type="text" name="category" id="category">
   {{range .categories}}
   <option value="{{.CategoryName}}">{{.CategoryName}}</option>
   {{end}}
 </select>
 
 <button onclick="createPostJSON()">Create Post</button>
-
+<!-- For printing result from server -->
+<p class="result" style="color: green"></p>
 {{end}}
 <script src="/static/js/post.js"></script>

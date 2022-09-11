@@ -27,6 +27,8 @@ type PostRequestDTO struct {
 	CategoryName string    `json:"category_name"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	CreatedAt    time.Time `json:"created_at"`
+	VoteLike     int       `json:"vote_like"`
+	VoteDislike  int       `json:"vote_dislike"`
 }
 
 // PostCreateRequestDTO ...

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"git.01.alem.school/quazar/forum-authentication/models"
@@ -23,13 +24,13 @@ func NewSqliteUserRepository(Conn *sql.DB) models.UserRepository {
 func (u *sqliteUserRepository) Create(ctx context.Context, user *models.User) (id int, err error) {
 	stmt, _ := u.Conn.Prepare("INSERT INTO users (username, password, email, created, updated) VALUES (?, ?, ?, ?, ?)")
 	result, err := stmt.Exec(user.Username, user.Password, user.Email, user.CreatedAt, user.UpdatedAt)
-	if err != nil {
+	if err != nil {	
 		return 0, err
 	}
 
 	user_id, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return 0, err //nil?
 	}
 
 	return int(user_id), nil
@@ -56,7 +57,11 @@ func (u *sqliteUserRepository) GetByID(ctx context.Context, id int) (*models.Use
 	user.UpdatedAt, _ = time.Parse(dateFormat, timeUpdated)
 
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
 	}
 
 	return user, nil
@@ -78,7 +83,11 @@ func (u *sqliteUserRepository) GetByEmail(ctx context.Context, email string) (*m
 	user.UpdatedAt, _ = time.Parse(dateFormat, timeUpdated)
 
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
 	}
 
 	return user, nil

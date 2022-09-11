@@ -35,6 +35,7 @@ func main() {
 	UserRepository := repository.NewSqliteUserRepository(db)
 	PostRepository := repository.NewSqlitePostRepository(db)
 	CategoryRepository := repository.NewSqliteCategoryRepository(db)
+	PostVoteRepository := repository.NewSqlitePostVoteRepository(db)
 
 	// contextTimeout setup
 	timeoutContext := time.Duration(config.Context.Timeout) * time.Second
@@ -43,6 +44,7 @@ func main() {
 	userUsecase := usecase.NewUserUsecase(UserRepository, timeoutContext)
 	postUsecase := usecase.NewPostUsecase(PostRepository, timeoutContext)
 	categoryUsecase := usecase.NewCategoryUsecase(CategoryRepository, timeoutContext)
+	postVoteUsecase := usecase.NewPostVoteUsecase(PostVoteRepository, timeoutContext)
 
 	// cache templates ...
 	templateCache, err := httpdelivery.NewTemplateCache("./ui/html/")
@@ -58,6 +60,7 @@ func main() {
 		UserUsecase:     userUsecase,
 		PostUsecase:     postUsecase,
 		CategoryUsecase: categoryUsecase,
+		PostVoteUsecase: postVoteUsecase,
 		TemplateCache:   templateCache,
 		InfoLog:         infoLog,
 		ErrorLog:        errorLog,

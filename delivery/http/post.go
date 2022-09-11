@@ -3,10 +3,11 @@ package httpdelivery
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"git.01.alem.school/quazar/forum-authentication/models"
@@ -14,7 +15,6 @@ import (
 
 // Home page handler for all posts
 func (ph *Handler) home(w http.ResponseWriter, r *http.Request) {
-	// http.Error(w, "home page is here ...", http.StatusOK)
 
 	if r.URL.Path != "/" {
 		ph.renderHTML(w, r, http.StatusNotFound, "404.page.html", map[string]interface{}{})
@@ -28,39 +28,34 @@ func (ph *Handler) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := GetSession(r)
-
-	if err != nil {
-		// JSON(w, 401, err)
-		fmt.Println("not in session")
-	}
+	email, isSession := GetSession(r)
 
 	// render page ...
 	ph.renderHTML(w, r, http.StatusOK, "home.page.html", map[string]interface{}{
-		"posts": *p,
-		"user":  models.User{Username: username},
+		"posts":   *p,
+		"user":    models.User{Email: email},
+		"session": isSession,
 	})
 }
 
 // Create post handler ...
 func (ph *Handler) createPost(w http.ResponseWriter, r *http.Request) {
-	userEmail, err := GetSession(r)
+	userEmail, isSession := GetSession(r)
 
-	if err != nil {
-		fmt.Println(err)
+	if !isSession {
 		http.Redirect(w, r, "/signin", http.StatusSeeOther)
 		return
 	}
 
 	user, err := ph.UserUsecase.GetByEmail(context.Background(), userEmail)
 	if err != nil {
-		JSON(w, 405, err)
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return
 	}
 
 	categories, err := ph.CategoryUsecase.GetAll(context.Background())
 	if err != nil {
-		JSON(w, 405, err)
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return
 	}
 
@@ -76,7 +71,26 @@ func (ph *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&postInput)
 
 		if err != nil {
-			JSON(w, 500, err)
+			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
+			return
+		}
+
+		// Empty entry checker
+		if (strings.TrimSpace(postInput.Title) == "") || (strings.TrimSpace(postInput.Content) == "") {
+			ph.ErrorLog.Println("issue with entry")
+			JSON(w, http.StatusBadRequest, ResponseError{Message: "error: wrong entry"})
+			return
+		}
+		// Wrong category checker
+		categoryChecker := 0
+		for _, category := range *categories {
+			if category.CategoryName == postInput.CategoryName {
+				categoryChecker = 1
+			}
+		}
+		if categoryChecker == 0 {
+			ph.ErrorLog.Println("issue with category")
+			JSON(w, http.StatusBadRequest, ResponseError{Message: "error: wrong entry"})
 			return
 		}
 
@@ -97,16 +111,15 @@ func (ph *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 
 		post.PostID, err = ph.PostUsecase.Create(context.Background(), &post)
 		if err != nil {
-			JSON(w, 500, err)
+			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
 			return
 		}
-		JSON(w, 200, post)
+		JSON(w, http.StatusCreated, post)
 	}
 }
 
 // Show post handler ...
 func (ph *Handler) showPost(w http.ResponseWriter, r *http.Request) {
-
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id < 1 {
 		ph.renderHTML(w, r, http.StatusNotFound, "404.page.html", map[string]interface{}{})
@@ -115,12 +128,13 @@ func (ph *Handler) showPost(w http.ResponseWriter, r *http.Request) {
 
 	post, err := ph.PostUsecase.GetByID(context.Background(), id)
 	if err != nil {
-		// if errors.Is(err, models.ErrNoRecord) {
-		// 	JSON(w, 404, err)
-		// } else {
-		// 	JSON(w, 500, err)
-		// }
-		ph.renderHTML(w, r, http.StatusNotFound, "500.page.html", map[string]interface{}{})
+		if errors.Is(err, models.ErrNoRecord) {
+			JSON(w, http.StatusNotFound, ResponseError{Message: err.Error()})
+		} else {
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
+		}
+
+		// ph.renderHTML(w, r, http.StatusInternalServerError, "500.page.html", map[string]interface{}{})
 		return
 	}
 
@@ -131,14 +145,12 @@ func (ph *Handler) showPost(w http.ResponseWriter, r *http.Request) {
 	// to implement comments number ...
 
 	// get session info ...
-	username, err := GetSession(r)
-	if err != nil {
-		fmt.Println(err, "showpost")
-	}
+	email, isSession := GetSession(r)
 
 	ph.renderHTML(w, r, 200, "post.page.html", map[string]interface{}{
-		"post": *post,
-		"user": models.User{Username: username},
+		"post":    *post,
+		"user":    models.User{Email: email},
+		"session": isSession,
 	})
 
 }

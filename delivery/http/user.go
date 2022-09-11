@@ -16,8 +16,12 @@ func (u *Handler) signin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		// http.Error(w, "signin page is OK", 200)
+
+		_, isSession := GetSession(r)
 		// sigin page rendering ...
-		u.render(w, r, "signin.page.html", nil)
+		u.renderHTML(w, r, 200, "signin.page.html", map[string]interface{}{
+			"session": isSession,
+		})
 	} else if r.Method == "POST" {
 		// JSON decoder
 		decoder := json.NewDecoder(r.Body)
@@ -26,7 +30,7 @@ func (u *Handler) signin(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			// http.Error(w, "signin: json decoder error", 500)
-			JSON(w, 500, err)
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
 			return
 		}
 
@@ -35,7 +39,7 @@ func (u *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			// need tohandle error based on status (500, 401, etc.)
 			// http.Error(w, "signin: coudlnt find or unautorized", http.StatusUnauthorized)
 
-			JSON(w, 401, err)
+			JSON(w, http.StatusUnauthorized, ResponseError{Message: err.Error()})
 			return
 		}
 
@@ -43,7 +47,7 @@ func (u *Handler) signin(w http.ResponseWriter, r *http.Request) {
 			// need to handle with 401 error
 			// http.Error(w, "signin: password is wrong", http.StatusUnauthorized)
 
-			JSON(w, 401, err)
+			JSON(w, http.StatusUnauthorized, ResponseError{Message: err.Error()})
 			return
 		}
 
@@ -65,15 +69,17 @@ func (u *Handler) signin(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, cookie)
 
 		http.Redirect(w, r, "/", http.StatusFound)
-		// JSON(w, 302, nil)
 	}
 }
 
 func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		// http.Error(w, "signup: page is OK", 200)
 
-		u.render(w, r, "signup.page.html", nil)
+		_, isSession := GetSession(r)
+		// signup page rendering ...
+		u.renderHTML(w, r, 200, "signup.page.html", map[string]interface{}{
+			"session": isSession,
+		})
 	} else if r.Method == "POST" {
 		// JSON decoder
 		decoder := json.NewDecoder(r.Body)
@@ -81,8 +87,7 @@ func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&userInput)
 
 		if err != nil {
-			// http.Error(w, "signup: json decoder error", 500)
-			JSON(w, 500, err)
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
 			return
 		}
 
@@ -90,13 +95,17 @@ func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 
 		var user models.User
 		user.Username = userInput.Username
-		user.Email = userInput.Username
+		user.Email = userInput.Email
 		user.Password = userInput.Password
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = time.Now()
 
 		// password
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+		if err != nil {
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
+			return
+		}
 		user.Password = string(hashedPassword)
 		// Time
 		dateFormat := "2016-10-06 01:50:00 -0700 MST"
@@ -106,23 +115,18 @@ func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 		user.UserID, err = u.UserUsecase.Create(context.Background(), &user)
 		if err != nil {
 			// handle error ...
-
 			// http.Error(w, "signup page: couldnt create user", 500)
-			JSON(w, 500, err)
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
 			return
 		}
-
 		// http.Redirect(w, r, "/", http.StatusSeeOther)
 		// http.Error(w, "user has been created", http.StatusCreated)
-
-		JSON(w, 201, user) // user or nil?
-
+		JSON(w, http.StatusCreated, user) // user or nil?
 		return
 	} else {
 		// method not allowed
 		// http.Error(w, "signup page: method not allowed", http.StatusMethodNotAllowed)
-
-		JSON(w, 405, nil) // custom error?
+		JSON(w, http.StatusMethodNotAllowed, ResponseError{Message: "Wrong method"}) // custom error?
 		return
 	}
 }

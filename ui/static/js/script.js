@@ -24,8 +24,12 @@ xhr.onreadystatechange = function () {
     // result.innerHTML = this.responseText;
     window.location.replace("/signin")
 
-  } 
-  // need to add response in case of fail
+  } else { // need to add response in case of fail
+    // if xhr.status === 401 {  }
+    var jsonResponse = JSON.parse(xhr.responseText);
+    result.innerHTML = jsonResponse.message
+  }
+  
 };
 
 // Converting JSON data to string
@@ -37,6 +41,8 @@ xhr.send(data)
 
 // user signin ...
 function signinJSON() {
+  let result = document.querySelector('.result')
+  
 const email = document.getElementById("emailAddress");
 const password = document.getElementById("userPassword");
 
@@ -58,8 +64,11 @@ xhr.onreadystatechange = function () {
     // result.innerHTML = this.responseText;
     window.location.replace("/")
 
-  } 
-  // need to add response in case of fail
+  } else { // need to add response in case of fail
+    // if xhr.status === 401 {  }
+    var jsonResponse = JSON.parse(xhr.responseText);
+    result.innerHTML = jsonResponse.message
+  }
 };
 
 // Converting JSON data to string

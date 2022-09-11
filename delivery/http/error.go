@@ -15,7 +15,6 @@ type ResponseError struct {
 
 func errorHandler(status int, err error) {
 	log.Println(status, err)
-
 }
 
 func getStatusCode(err error) int {
@@ -30,6 +29,8 @@ func getStatusCode(err error) int {
 		return http.StatusNotFound
 	case models.ErrConflict:
 		return http.StatusConflict
+	case models.ErrNoRecord:
+		return http.StatusNotFound
 	default:
 		return http.StatusInternalServerError
 	}

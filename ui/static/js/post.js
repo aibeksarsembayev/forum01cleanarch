@@ -1,5 +1,8 @@
 // post creation ...
 function createPostJSON() {
+  let result = document.querySelector('.result')
+
+
   const title = document.getElementById("postTitle");
   const content = document.getElementById("postContent");
   const category = document.getElementById("category");
@@ -16,19 +19,22 @@ function createPostJSON() {
 
   // Create a state change callback
   xhr.onreadystatechange = function () {
-   if (xhr.readyState === 4 && xhr.status === 200) {
+    if (xhr.readyState === 4 && xhr.status === 201) {
 
-    var jsonResponse = JSON.parse(xhr.responseText);
+      var jsonResponse = JSON.parse(xhr.responseText);
 
       // Print received data from server
       // result.innerHTML = this.responseText;
 
       window.location.replace("/post/" + jsonResponse.post_id)
-    } 
-  // need to add response in case of fail
+    } else {   // need to add response in case of fail
+      var jsonResponse = JSON.parse(xhr.responseText);
+      result.innerHTML = jsonResponse.message
+    }
   };
+
   // Converting JSON data to string
-  var data = JSON.stringify({ "title": title.value, "content": content.value, "category_name": category.value});
+  var data = JSON.stringify({ "title": title.value, "content": content.value, "category_name": category.value });
 
   // Sending data with the request
   xhr.send(data)

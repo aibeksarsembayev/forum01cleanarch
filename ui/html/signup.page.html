@@ -1,24 +1,52 @@
-{{template "base" .}}
+{{template "base" .}} {{define "title"}}Sign up{{end}} {{define "main"}}
+<h2>Registration</h2>
 
-{{define "title"}}Sign up{{end}}
+<!-- <form action="/signup" method="Post"> -->
 
-{{define "main"}}
-    <h2>Registration</h2>
+<label
+  >Username
+  <input
+    type="text"
+    name="username"
+    id="username"
+    placeholder="Enter your name"
+    required
+/></label>
+<label
+  >Email
+  <input
+    type="email"
+    name="email"
+    id="emailAddress"
+    placeholder="Enter your email"
+    required
+/></label>
+<label
+  >Password
+  <input
+    type="password"
+    name="password"
+    id="userPassword"
+    placeholder="Enter your password"
+    required
+/></label>
+<label
+  >Confirm Password
+  <input
+    type="password"
+    name="confirm"
+    id="confirmPassword"
+    placeholder="Repeat your password"
+    required
+/></label>
 
-    <!-- <form action="/signup" method="Post"> -->
+<!-- <input type="submit" value="Signup"> -->
 
-            <label>Username <input type="text" name="username" id="username" placeholder="Enter your name" required></label>
-            <label>Email <input type="email" name="email" id="emailAddress" placeholder="Enter your email" required></label>
-            <label>Password <input type="password" name="password" id="userPassword" placeholder="Enter your password" required></label>
-            <label>Confirm Password <input type="password" name="confirm" id="confirmPassword" placeholder="Repeat your password" required></label>
-            
-            <!-- <input type="submit" value="Signup"> -->
-           
-            <button onclick="signupJSON()">Register</button>
+<button onclick="signupJSON()">Register</button>
 
- <!-- For printing result from server -->
- <p class="result" style="color:green"></p>
-    <!-- </form> -->
+<!-- For printing result from server -->
+<p class="result" style="color: green"></p>
+<!-- </form> -->
 {{end}}
 
 <script src="/static/js/script.js"></script>

@@ -9,16 +9,16 @@ import (
 
 var sessions sync.Map
 
-func GetSession(r *http.Request) (string, error) {
+func GetSession(r *http.Request) (string, bool) {
 	var userEmail string
 	cookie, err := r.Cookie("session_token")
 	if err == nil {
 		if value, ok := sessions.Load(cookie.Value); ok {
 			userEmail = fmt.Sprint(value)
-			return userEmail, err
+			return userEmail, true
 		}
 	}
-	return userEmail, err
+	return userEmail, false
 }
 
 func ClearSession(w http.ResponseWriter, r *http.Request) {

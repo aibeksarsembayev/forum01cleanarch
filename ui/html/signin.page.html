@@ -1,20 +1,32 @@
-{{template "base" .}}
+{{template "base" .}} {{define "title"}}Sign In{{end}} {{define "main"}}
+<h2>Login</h2>
 
-{{define "title"}}Sign In{{end}}
+<!-- <form action="/signin" method="Post"> -->
 
-{{define "main"}}
-    <h2>Login</h2>
+<label
+  >Email
+  <input
+    type="email"
+    name="email"
+    id="emailAddress"
+    placeholder="Enter your email"
+    required
+/></label>
+<label
+  >Password<input
+    type="password"
+    name="password"
+    id="userPassword"
+    placeholder="Enter your password"
+    required
+/></label>
 
-    <!-- <form action="/signin" method="Post"> -->
+<!-- <input type="submit" value="Login"> -->
 
-        <label>Email <input type="email" name="email" id="emailAddress" placeholder="Enter your email" required></label>
-        <label>Password<input type="password" name="password" id="userPassword" placeholder="Enter your password" required></label>
-       
-        <!-- <input type="submit" value="Login"> -->
-
-        <button onclick="signinJSON()">Login</button>
-
-    <!-- </form> -->
+<button onclick="signinJSON()">Login</button>
+<!-- For printing result from server -->
+<p class="result" style="color: green"></p>
+<!-- </form> -->
 
 {{end}}
 <script src="/static/js/script.js"></script>

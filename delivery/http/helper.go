@@ -26,7 +26,7 @@ func (u *Handler) renderHTML(w http.ResponseWriter, r *http.Request, code int, n
 		return
 	}
 
-	// w.WriteHeader(code)
+	w.WriteHeader(code)
 
 	err := ts.Execute(w, obj)
 	if err != nil {

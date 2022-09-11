@@ -25,10 +25,33 @@
         <a href="/post/{{.PostID}}">{{.Title}}</a>
         <p class="card-text">Published: {{.CreatedAt}}</p>             
         
+        <!-- post vote part -->
+        <div>
+          {{.VoteLike}}
+          <!-- <form action="/post/vote/{{.PostID}}" method="POST">  
+            <input type="text" value="/" name="path" hidden>               
+            <input type="submit" value="like" />               
+           </form>                    --> 
+           <p class="resultPostLike" style="color: green">{{.VoteLike}}</p>          
+           <form action="">
+             <input type="text" name="vote" id="voteLike" value="true" hidden>
+             <input type="text" name="post_id" id="postIDLike" value="{{.PostID}}" hidden>
+             <input type="submit" value="like" onclick="votePostLike()">
+           </form>
+        </div>
+        <div>
+          {{.VoteDislike}}
+          <form action="/post/vote/{{.PostID}}" method="Post">                 
+            <input type="text" value="/" name="path" hidden> 
+            <input type="submit" value="dislike" />
+          </form>          
+        </div>
+
       </div>
     </div>
   </div>
 </div>
+<script src="/static/js/postVote.js"></script>
 {{end}} {{else}}
 <p>Nothing is here..for now!</p>
 {{end}} {{end}}
