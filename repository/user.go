@@ -23,8 +23,13 @@ func NewSqliteUserRepository(Conn *sql.DB) models.UserRepository {
 // Create user ..
 func (u *sqliteUserRepository) Create(ctx context.Context, user *models.User) (id int, err error) {
 	stmt, _ := u.Conn.Prepare("INSERT INTO users (username, password, email, created, updated) VALUES (?, ?, ?, ?, ?)")
-	result, err := stmt.Exec(user.Username, user.Password, user.Email, user.CreatedAt, user.UpdatedAt)
-	if err != nil {	
+	// Time convert
+	dateFormat := "2006-01-02T15:04:05Z07:00"
+	timeCreated := user.CreatedAt.Format(dateFormat)
+	timeUpdated := user.UpdatedAt.Format(dateFormat)
+
+	result, err := stmt.Exec(user.Username, user.Password, user.Email, timeCreated, timeUpdated)
+	if err != nil {
 		return 0, err
 	}
 
@@ -49,7 +54,7 @@ func (u *sqliteUserRepository) GetByID(ctx context.Context, id int) (*models.Use
 
 	user := &models.User{}
 
-	dateFormat := "2016-10-06 01:50:00 -0700 MST"
+	dateFormat := "2006-01-02T15:04:05Z07:00"
 	var timeCreated, timeUpdated string
 
 	err := row.Scan(&user.UserID, &user.Username, &user.Password, &user.Email, &timeCreated, &timeUpdated)
@@ -75,7 +80,7 @@ func (u *sqliteUserRepository) GetByEmail(ctx context.Context, email string) (*m
 
 	user := &models.User{}
 
-	dateFormat := "2016-10-06 01:50:00 -0700 MST"
+	dateFormat := "2006-01-02T15:04:05Z07:00"
 	var timeCreated, timeUpdated string
 
 	err := row.Scan(&user.UserID, &user.Username, &user.Password, &user.Email, &timeCreated, &timeUpdated)

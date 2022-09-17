@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 
 	"git.01.alem.school/quazar/forum-authentication/models"
@@ -107,10 +108,6 @@ func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		user.Password = string(hashedPassword)
-		// Time
-		dateFormat := "2016-10-06 01:50:00 -0700 MST"
-		user.CreatedAt.Format(dateFormat)
-		user.UpdatedAt.Format(dateFormat)
 
 		user.UserID, err = u.UserUsecase.Create(context.Background(), &user)
 		if err != nil {
@@ -134,6 +131,47 @@ func (u *Handler) signup(w http.ResponseWriter, r *http.Request) {
 func (u *Handler) signout(w http.ResponseWriter, r *http.Request) {
 	ClearSession(w, r)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Show user profile ...
+func (u *Handler) showProfile(w http.ResponseWriter, r *http.Request) {
+	emailInput := path.Base(r.URL.Path)
+
+	userEmail, isSession := GetSession(r)
+
+	if !isSession {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+
+	if emailInput != userEmail {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: "please use valid user data"})
+	}
+	// get user info...
+	user, err := u.UserUsecase.GetByEmail(context.Background(), userEmail)
+	if err != nil {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return
+	}
+	// get all categories...
+	categories, err := u.CategoryUsecase.GetAll(context.Background())
+	if err != nil {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return
+	}
+	// get all posts by user id
+	posts, err := u.PostUsecase.GetByUserID(context.Background(), user.UserID)
+	if err != nil {
+		u.renderHTML(w, r, http.StatusInternalServerError, "500.page.html", map[string]interface{}{})
+		return
+	}
+	// render page ...
+	u.renderHTML(w, r, http.StatusOK, "profile.page.html", map[string]interface{}{
+		"posts":      *posts,
+		"user":       user,
+		"session":    isSession,
+		"categories": categories,
+	})
 }
 
 // // Context realization example

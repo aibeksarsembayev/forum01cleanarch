@@ -16,8 +16,8 @@ type PostVote struct {
 }
 
 type PostVoteInputRequestDTO struct {
-	PostVoteValue bool `json:"post_vote_value"`
-	PostID        int  `json:"post_id"`
+	PostVoteValue string `json:"post_vote_value"`
+	PostID        string `json:"post_id"`
 }
 
 type PostVoteCreateRequestDTO struct {
@@ -34,7 +34,7 @@ type PostVoteResponceDTO struct {
 
 // PostVoteUsecase respresents postvotevalues usecases
 type PostVoteUsecase interface {
-	Create(ctx context.Context, postVote *PostVoteCreateRequestDTO) (id int, err error)
+	Create(ctx context.Context, postVote *PostVote) (id int, err error)
 	Update(ctx context.Context, postVote *PostVote) (err error)
 	GetByPostUser(ctx context.Context, postID int, userID int) (*PostVote, error)
 	GetCountByPost(ctx context.Context, postID int, value bool) (int, error)
@@ -43,7 +43,7 @@ type PostVoteUsecase interface {
 
 // PostVoteUsecase respresents postvotevalue's repository contact
 type PostVoteRepository interface {
-	Create(ctx context.Context, postVote *PostVoteCreateRequestDTO) (id int, err error)
+	Create(ctx context.Context, postVote *PostVote) (id int, err error)
 	Update(ctx context.Context, postVote *PostVote) (err error)
 	GetByPostUser(ctx context.Context, postID int, userId int) (*PostVote, error)
 	GetCountByPost(ctx context.Context, postID int, value bool) (int, error)

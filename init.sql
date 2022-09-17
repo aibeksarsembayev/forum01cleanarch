@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "votes" (
 	"user_id"	INTEGER NOT NULL,
 	"post_id"	INTEGER NOT NULL,
 	"value"	BLOB NOT NULL,
-  	"created"	TEXT NOT NULL,
+  "created"	TEXT NOT NULL,
   "updated" TEXT NOT NULL,
 	FOREIGN KEY("user_id") REFERENCES "users"("user_id"),
 	FOREIGN KEY("post_id") REFERENCES "posts"("post_id"),
@@ -53,14 +53,12 @@ CREATE TABLE IF NOT EXISTS "votes" (
 
 CREATE TABLE IF NOT EXISTS "vote_comment" (
 	"id"	INTEGER NOT NULL,
-	"user_id"	INTEGER NOT NULL,
-	"post_id"	INTEGER NOT NULL,
+	"user_id"	INTEGER NOT NULL,	
 	"comment_id"	INTEGER NOT NULL,
 	"value"	BLOB NOT NULL,
-  	"created"	TEXT NOT NULL,
+  "created"	TEXT NOT NULL,
   "updated" TEXT NOT NULL,
-	FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION,
-	FOREIGN KEY("post_id") REFERENCES "posts"("post_id") ON UPDATE NO ACTION,
+	FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION,	
 	FOREIGN KEY("comment_id") REFERENCES "comments"("comment_id") ON UPDATE NO ACTION,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );

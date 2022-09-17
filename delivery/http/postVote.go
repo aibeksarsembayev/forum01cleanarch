@@ -4,22 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"time"
 
 	"git.01.alem.school/quazar/forum-authentication/models"
 )
 
 // postVote handler for like/dislikes ...
 func (ph *Handler) postVote(w http.ResponseWriter, r *http.Request) {
-	// get post id
-	// id, err := strconv.Atoi(path.Base(r.URL.Path))
-	// if err != nil || id < 1 {
-	// 	ph.renderHTML(w, r, http.StatusNotFound, "404.page.html", ResponseError{Message: err.Error()})
-	// 	return
-	// }
-	// get user info and session ...
+
 	userEmail, isSession := GetSession(r)
 	if !isSession {
-		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+
+		JSON(w, http.StatusUnauthorized, ResponseError{Message: "not logged"})
 		return
 	}
 	// get user model
@@ -40,18 +37,40 @@ func (ph *Handler) postVote(w http.ResponseWriter, r *http.Request) {
 			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
 			return
 		}
-		vote := models.PostVoteCreateRequestDTO{
-			PostVoteValue: voteInput.PostVoteValue,
-			PostID:        voteInput.PostID,
-			UserID:        user.UserID,
+		//
+		vote := models.PostVote{
+			UserID:    user.UserID,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
+
+		
+		if voteInput.PostVoteValue == "like" {
+			vote.PostVoteValue = true
+		} else {
+			vote.PostVoteValue = false
+		}
+		//
+		vote.PostID, err = strconv.Atoi(voteInput.PostID)
+		if err != nil {
+			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
+			return
+		}
+
 		// create vote with checker for liked/disliked votes ...
 		_, err = ph.PostVoteUsecase.Create(context.Background(), &vote)
 		if err != nil {
 			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
+			return
 		}
 
-		JSON(w, http.StatusCreated, models.Post{PostID: vote.PostID})
+		post, err := ph.PostUsecase.GetByID(context.Background(), vote.PostID)
+		if err != nil {
+			JSON(w, getStatusCode(err), ResponseError{Message: err.Error()})
+			return
+		}
+		// fmt.Println(post)
+		JSON(w, http.StatusCreated, post)
 	}
 
 }

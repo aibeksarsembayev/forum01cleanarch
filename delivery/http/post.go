@@ -24,17 +24,25 @@ func (ph *Handler) home(w http.ResponseWriter, r *http.Request) {
 	p, err := ph.PostUsecase.GetAll(context.Background())
 
 	if err != nil {
+		ph.ErrorLog.Println(err)
 		ph.renderHTML(w, r, http.StatusInternalServerError, "500.page.html", map[string]interface{}{})
 		return
 	}
-
+	// get logged user info
 	email, isSession := GetSession(r)
+	// get categories ..
+	categories, err := ph.CategoryUsecase.GetAll(context.Background())
+	if err != nil {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return
+	}
 
 	// render page ...
 	ph.renderHTML(w, r, http.StatusOK, "home.page.html", map[string]interface{}{
-		"posts":   *p,
-		"user":    models.User{Email: email},
-		"session": isSession,
+		"posts":      *p,
+		"user":       models.User{Email: email},
+		"session":    isSession,
+		"categories": categories,
 	})
 }
 
@@ -104,10 +112,7 @@ func (ph *Handler) createPost(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt:    time.Now(),
 		}
 
-		// Time converting to string
-		dateFormat := "2016-10-06 01:50:00 -0700 MST"
-		post.CreatedAt.Format(dateFormat)
-		post.UpdatedAt.Format(dateFormat)
+
 
 		post.PostID, err = ph.PostUsecase.Create(context.Background(), &post)
 		if err != nil {
@@ -133,24 +138,70 @@ func (ph *Handler) showPost(w http.ResponseWriter, r *http.Request) {
 		} else {
 			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
 		}
-
 		// ph.renderHTML(w, r, http.StatusInternalServerError, "500.page.html", map[string]interface{}{})
 		return
 	}
 
-	// to implement count votes ...
-
 	// to implement get comments ...
-
+	comments, err := ph.CommentUsecase.GetByPostID(context.Background(), id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) { // ?
+			JSON(w, http.StatusNotFound, ResponseError{Message: err.Error()})
+		} else {
+			JSON(w, http.StatusInternalServerError, ResponseError{Message: err.Error()})
+		}
+		return
+	}
 	// to implement comments number ...
-
+	commentNumber := strconv.Itoa(len(*comments))
 	// get session info ...
 	email, isSession := GetSession(r)
 
 	ph.renderHTML(w, r, 200, "post.page.html", map[string]interface{}{
-		"post":    *post,
-		"user":    models.User{Email: email},
-		"session": isSession,
+		"post":          *post,
+		"user":          models.User{Email: email},
+		"session":       isSession,
+		"comments":      comments,
+		"commentNumber": commentNumber,
 	})
 
+}
+
+// Show liked post handler ...
+func (ph *Handler) showLikedPost(w http.ResponseWriter, r *http.Request) {
+	emailInput := path.Base(r.URL.Path)
+	userEmail, isSession := GetSession(r)
+	if !isSession {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+
+	if emailInput != userEmail {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: "please use valid user data"})
+	}
+	// get user info...
+	user, err := ph.UserUsecase.GetByEmail(context.Background(), userEmail)
+	if err != nil {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return
+	}
+	// get all categories...
+	categories, err := ph.CategoryUsecase.GetAll(context.Background())
+	if err != nil {
+		JSON(w, http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return
+	}
+	// get all posts by user liked
+	posts, err := ph.PostUsecase.GetLikedByUserID(context.Background(), user.UserID)
+	if err != nil {
+		ph.renderHTML(w, r, http.StatusInternalServerError, "500.page.html", map[string]interface{}{})
+		return
+	}
+	// render page ...
+	ph.renderHTML(w, r, http.StatusOK, "profileLiked.page.html", map[string]interface{}{
+		"posts":      *posts,
+		"user":       user,
+		"session":    isSession,
+		"categories": categories,
+	})
 }

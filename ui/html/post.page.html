@@ -1,11 +1,21 @@
 {{template "base" .}} {{define "title"}}Post #{{.post.PostID}}{{end}} {{define
 "main"}} {{with .post}}
+<!-- Post card -->
 <div>
+  <!-- Post image -->
   <img
     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ124yi5yS06QmpyvRNRu4I3ql1x124DXfJ7A&usqp=CAU"
     class="img-fluid rounded-start"
     alt="..."
-  />
+  />  
+  <!-- Post main information part -->
+  <input
+  type="text"
+  name="postID"
+  id="postID"
+  value="{{.PostID}}"
+  hidden
+/>
   <div>
     <strong>{{.Title}}</strong>
     <span>#{{.PostID}}</span>
@@ -16,6 +26,119 @@
     <div>Author: {{.Username}}</div>
     <p class="card-text">Published: {{.CreatedAt}}</p>
   </div>
-  
+
+  <!-- post vote like part -->
+  <div>
+    <p class="like{{.PostID}}">{{.VoteLike}}</p>
+    <input
+      type="text"
+      name="vote"
+      id="voteLike{{.PostID}}"
+      value="like"
+      hidden
+    />
+    <input
+      type="text"
+      name="post_id"
+      id="postIDLike{{.PostID}}"
+      value="{{.PostID}}"
+      hidden
+    />
+    <input
+      type="submit"
+      value="like"
+      onclick="votePost(document.getElementById('postIDLike'+{{.PostID}}).value, document.getElementById('voteLike'+{{.PostID}}).value)"
+    />
+  </div>
+  <!-- post vote dislike part -->
+  <div>
+    <p class="dislike{{.PostID}}">{{.VoteDislike}}</p>
+    <input
+      type="text"
+      name="vote"
+      id="voteDislike{{.PostID}}"
+      value="dislike"
+      hidden
+    />
+    <input
+      type="text"
+      name="post_id"
+      id="postIDDislike{{.PostID}}"
+      value="{{.PostID}}"
+      hidden
+    />
+    <input
+      type="submit"
+      value="dislike"
+      onclick="votePost(document.getElementById('postIDDislike'+{{.PostID}}).value, document.getElementById('voteDislike'+{{.PostID}}).value)"
+    />
+  </div>
 </div>
-{{end}} {{end}}
+{{end}}
+
+<!-- Comments part -->
+<div>
+  <div>
+    <strong>{{.commentNumber}} 
+        {{if eq .commentNumber "1"}} 
+            comment 
+        {{else}} comments{{end}}</strong>
+  </div>
+  <div>
+    {{if .session}}
+   
+      <label>
+        <input
+          type="textarea"
+          name="comment_body" 
+          id="comment_content"         
+          placeholder="Leave a comment..."
+          required
+      />
+
+
+      <button onclick="createCommentJSON()">Send</button>
+   
+<p class="resultComment" style="color: green"></p>
+    {{else}}
+    <p>To leave a comment -> <a href="/signin">Sign In</a></p>
+
+    {{end}}
+  </div>
+ 
+  <div class="comments">
+    {{if .comments}} {{range .comments}}
+    <p>Comment author: {{.Username}}</p>
+    <p>Comment: {{.Content}}</p>
+    <p>Comment date: {{.CreatedAt}}</p>
+    <br>
+    <!-- comment vote part -->
+    <div>
+      
+      <p class="likeComment{{.CommentID}}">{{.CommentVoteLike}}</p>
+      <!-- <form action="/post/comment/like?id={{.PostID}}&comment={{.CommentID}}" method="Post">  -->
+        <input type="text" name="voteComment" id="commentLike{{.CommentID}}" value="like" hidden />
+        <input type="text" name="commentID" id="commentIDLike{{.CommentID}}" value="{{.CommentID}}" hidden />                   
+        <input type="submit" value="like" onclick="voteComment(document.getElementById('commentLike'+{{.CommentID}}).value, document.getElementById('commentIDLike'+{{.CommentID}}).value)"/>
+      <!-- </form>                              -->
+    </div>
+    <div>
+      
+      <p class="dislikeComment{{.CommentID}}">{{.CommentVoteDislike}}</p>
+      
+        <input type="text" name="voteComment" id="commentDislike{{.CommentID}}" value="dislike" hidden />
+        <input type="text" name="commentID" id="commentIDDislike{{.CommentID}}" value="{{.CommentID}}" hidden />                   
+        <input type="submit" value="dislike" onclick="voteComment(document.getElementById('commentDislike'+{{.CommentID}}).value, document.getElementById('commentIDDislike'+{{.CommentID}}).value)"/>
+                                
+    </div>
+    {{end}} {{else}}
+    <p>No comments yet... Be first - leave your thought!</p>
+    {{end}}
+  </div>
+</div>
+
+
+{{end}}
+<script src="/static/js/postVote.js"></script>
+<script src="/static/js/comment.js"></script>
+<script src="/static/js/commentVote.js"></script>

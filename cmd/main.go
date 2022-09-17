@@ -36,6 +36,8 @@ func main() {
 	PostRepository := repository.NewSqlitePostRepository(db)
 	CategoryRepository := repository.NewSqliteCategoryRepository(db)
 	PostVoteRepository := repository.NewSqlitePostVoteRepository(db)
+	CommentRepository := repository.NewSqliteCommentRepository(db)
+	CommentVoteRepository := repository.NewSqliteCommentVoteRepository(db)
 
 	// contextTimeout setup
 	timeoutContext := time.Duration(config.Context.Timeout) * time.Second
@@ -45,6 +47,8 @@ func main() {
 	postUsecase := usecase.NewPostUsecase(PostRepository, timeoutContext)
 	categoryUsecase := usecase.NewCategoryUsecase(CategoryRepository, timeoutContext)
 	postVoteUsecase := usecase.NewPostVoteUsecase(PostVoteRepository, timeoutContext)
+	commentUsecase := usecase.NewCommentUsecase(CommentRepository, timeoutContext)
+	commentVoteUsecase := usecase.NewCommentVoteUsecase(CommentVoteRepository, timeoutContext)
 
 	// cache templates ...
 	templateCache, err := httpdelivery.NewTemplateCache("./ui/html/")
@@ -57,13 +61,15 @@ func main() {
 
 	// delivery handler ...
 	handler := &httpdelivery.Handler{
-		UserUsecase:     userUsecase,
-		PostUsecase:     postUsecase,
-		CategoryUsecase: categoryUsecase,
-		PostVoteUsecase: postVoteUsecase,
-		TemplateCache:   templateCache,
-		InfoLog:         infoLog,
-		ErrorLog:        errorLog,
+		UserUsecase:        userUsecase,
+		PostUsecase:        postUsecase,
+		CategoryUsecase:    categoryUsecase,
+		PostVoteUsecase:    postVoteUsecase,
+		CommentUsecase:     commentUsecase,
+		CommentVoteUsecase: commentVoteUsecase,
+		TemplateCache:      templateCache,
+		InfoLog:            infoLog,
+		ErrorLog:           errorLog,
 	}
 
 	// router init ...

@@ -20,7 +20,7 @@ func NewPostVoteUsecase(pv models.PostVoteRepository, timeout time.Duration) mod
 }
 
 // Create post vote ...
-func (pv *postVoteUsecase) Create(ctx context.Context, postVote *models.PostVoteCreateRequestDTO) (int, error) {
+func (pv *postVoteUsecase) Create(ctx context.Context, postVote *models.PostVote) (int, error) {
 	id, err := pv.PostVoteRepository.Create(ctx, postVote)
 	if err != nil {
 		return 0, err

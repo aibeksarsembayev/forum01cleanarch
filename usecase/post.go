@@ -57,6 +57,33 @@ func (p *postUsecase) GetByID(ctx context.Context, id int) (post *models.PostReq
 	return post, nil
 }
 
+// Get post by category name ...
+func (p *postUsecase) GetByCategory(ctx context.Context, category string) (*[]models.PostRequestDTO, error) {
+	posts, err := p.PostRepository.GetByCategory(ctx, category)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+// Get post by userid ...
+func (p *postUsecase) GetByUserID(ctx context.Context, id int) (*[]models.PostRequestDTO, error) {
+	posts, err := p.PostRepository.GetByUserID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+// Get post liked by userid ...
+func (p *postUsecase) GetLikedByUserID(ctx context.Context, id int) (*[]models.PostRequestDTO, error) {
+	posts, err := p.PostRepository.GetLikedByUserID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
 // Delete post ...
 func (p *postUsecase) Delete(ctx context.Context, id int) (err error) {
 	err = p.PostRepository.Delete(ctx, id)

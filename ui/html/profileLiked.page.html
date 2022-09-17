@@ -1,51 +1,12 @@
-{{template "base" .}} {{define "title"}}Home Page{{end}}
+{{template "base" .}} 
+
+{{define "title"}}Profile - Liked posts - {{.User.Username}}{{end}} 
+
+{{define "main"}} 
 
 
+<h2>{{.user.Username}}'s liked posts</h2>
 
-{{define "main"}}
-  <!-- Category filter -->
-  <button
-    class="btn btn-primary"
-    type="button"
-    data-bs-toggle="offcanvas"
-    data-bs-target="#offcanvasRight"
-    aria-controls="offcanvasRight"
-  >
-    Filter by Category
-  </button>
-
-  <div
-    class="offcanvas offcanvas-end"
-    tabindex="-1"
-    id="offcanvasRight"
-    aria-labelledby="offcanvasRightLabel"
-  >
-    <div class="offcanvas-header">
-      <h5 id="offcanvasRightLabel">Categories:</h5>
-      <button
-        type="button"
-        class="btn-close text-reset"
-        data-bs-dismiss="offcanvas"
-        aria-label="Close"
-      ></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="d-grid gap-2">
-        {{range .categories}}
-        <a
-          href="/category/{{.CategoryName}}"
-          type="button"
-          class="btn btn-light"
-        >
-          {{.CategoryName}}
-        </a>
-        {{end}}
-      </div>
-    </div>
-  </div>
-
-
-<h2>The Last posts</h2>
 {{if .posts}} {{range .posts}}
 <div class="card mb-3" style="max-width: 540px">
   <div class="row g-0">

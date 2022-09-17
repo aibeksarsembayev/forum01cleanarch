@@ -56,6 +56,9 @@ type PostUsecase interface {
 	Update(ctx context.Context, post *Post) (err error)
 	GetAll(ctx context.Context) (*[]PostRequestDTO, error)
 	GetByID(ctx context.Context, id int) (post *PostRequestDTO, err error)
+	GetByCategory(ctx context.Context, category string) (*[]PostRequestDTO, error)
+	GetByUserID(ctx context.Context, id int) (*[]PostRequestDTO, error)
+	GetLikedByUserID(ctx context.Context, id int) (*[]PostRequestDTO, error)
 	Delete(ctx context.Context, id int) (err error)
 }
 
@@ -65,5 +68,8 @@ type PostRepository interface {
 	Update(ctx context.Context, post *Post) (err error)
 	GetAll(ctx context.Context) (*[]PostRequestDTO, error)
 	GetByID(ctx context.Context, id int) (post *PostRequestDTO, err error)
+	GetByCategory(ctx context.Context, category string) (*[]PostRequestDTO, error)
+	GetByUserID(ctx context.Context, id int) (*[]PostRequestDTO, error)
+	GetLikedByUserID(ctx context.Context, id int) (*[]PostRequestDTO, error)
 	Delete(ctx context.Context, id int) (err error)
 }

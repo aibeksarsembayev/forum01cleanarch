@@ -7,7 +7,7 @@
     <a href="/">Home Page</a>
     {{if .session}}
     <a href="/post/create">Create Post</a>
-    <a href="/profile?user={{.User.Username}}">{{.User.Username}}</a>
+    <a href="/user/profile/{{.user.Email}}">{{.user.Email}}</a>
     <a href="/signout">Sign Out</a>
     {{else}}
     <a href="/signup">Sign Up</a>
